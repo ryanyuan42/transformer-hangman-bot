@@ -10,10 +10,8 @@ from encoder import Encoder
 from attention import MultiHeadedAttention
 from feed_forward import FullyConnectedFeedForward
 from model_embeddings import Embeddings
-import numpy as np
 from loss_function import SimpleLossCompute, KLLossCompute
 from optimimizer import NoamOpt
-from batch import Batch
 
 
 pad_token = 0
