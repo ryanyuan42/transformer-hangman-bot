@@ -8,6 +8,7 @@ class PositionalEncoding(nn.Module):
 
     def __init__(self, d_model, dropout, max_len=5000):
         super(PositionalEncoding, self).__init__()
+        self.device = self.device
         self.dropout = nn.Dropout(p=dropout)
 
         # Compute the positional encodings once in log space.

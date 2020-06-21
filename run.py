@@ -113,7 +113,10 @@ def run():
     # alphabets + PAD + MASK_TOKEN
     dummy = False
     small_size = False
-    use_checkpoint = True
+    use_checkpoint = False
+    use_cuda = False
+    device = torch.device("cuda:0" if use_cuda else "cpu")
+
     vocab = Vocab()
     V = len(vocab.char2id)
     d_model = 64
@@ -129,6 +132,7 @@ def run():
     encoder = Encoder(self_attn=self_attn, feed_forward=feed_forward, size=d_model, dropout=0.1)
     generator = Generator(d_model=d_model, vocab_size=V)
     model = Bert(encoder=encoder, embedding=embedding, generator=generator, n_layers=n_encoders)
+    model = model.to(device)
 
     opt = torch.optim.Adam(model.parameters(), lr=0, betas=(0.9, 0.98), eps=1e-9)
     model_opt = NoamOpt(d_model, 1, 200, opt)
@@ -147,7 +151,9 @@ def run():
         checkpoint = torch.load(model_save_path)
         current_epoch = checkpoint['epoch']
         model.load_state_dict(checkpoint['model_state_dict'])
+        model = model.to(device)
         opt.load_state_dict(checkpoint['optimizer_state_dict'])
+
         step = checkpoint['_step']
         rate = checkpoint['_rate']
         current_train_iter = checkpoint['train_iter']
@@ -164,7 +170,7 @@ def run():
         loss_compute = SimpleLossCompute(model.generator, criterion, opt=model_opt)
 
         start = time.time()
-        train_data_iter = create_words_batch(train_data, vocab, mini_batch=batch_size, shuffle=False)
+        train_data_iter = create_words_batch(train_data, vocab, mini_batch=batch_size, shuffle=False, device=model.device)
         for i, batch in enumerate(train_data_iter):
             if use_checkpoint and train_iter <= current_train_iter:
                 train_iter += 1
@@ -215,7 +221,8 @@ def run():
                                 'loss': cum_loss,
                                 '_rate': model_opt._rate,
                                 '_step': model_opt._step,
-                                'train_iter': train_iter
+                                'train_iter': train_iter,
+                                'hist_valid_scores': hist_valid_scores,
                                 }, model_save_path)
 
     torch.save(model, 'model/real.model')

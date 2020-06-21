@@ -52,7 +52,7 @@ def evaluate_acc(model, vocab, dev_data):
     return acc
 
 
-def create_words_batch(lines, vocab, mini_batch: int, shuffle=True):
+def create_words_batch(lines, vocab, mini_batch: int, device, shuffle=True):
     if shuffle:
         np.random.shuffle(lines)
 
@@ -65,8 +65,8 @@ def create_words_batch(lines, vocab, mini_batch: int, shuffle=True):
             tgt_buffer.append([vocab.char2id[c] for c in tgt_word])
 
             if len(src_buffer) == mini_batch:
-                src = torch.tensor(pad_words(src_buffer, vocab.char2id['_'])).long()
-                tgt = torch.tensor(pad_words(tgt_buffer, vocab.char2id['_'])).long()
+                src = torch.tensor(pad_words(src_buffer, vocab.char2id['_']), device=device).long()
+                tgt = torch.tensor(pad_words(tgt_buffer, vocab.char2id['_']), device=device).long()
 
                 batch = Batch(src, tgt, mask_token=vocab.char2id['#'], pad_token=vocab.char2id['_'])
                 yield batch
@@ -74,8 +74,8 @@ def create_words_batch(lines, vocab, mini_batch: int, shuffle=True):
                 tgt_buffer = []
 
     if len(src_buffer) != 0:
-        src = torch.tensor(pad_words(src_buffer, vocab.char2id['_'])).long()
-        tgt = torch.tensor(pad_words(tgt_buffer, vocab.char2id['_'])).long()
+        src = torch.tensor(pad_words(src_buffer, vocab.char2id['_']), device=device).long()
+        tgt = torch.tensor(pad_words(tgt_buffer, vocab.char2id['_']), device=device).long()
 
         batch = Batch(src, tgt, mask_token=vocab.char2id['#'], pad_token=vocab.char2id['_'])
         yield batch
@@ -89,9 +89,10 @@ def read_train_data():
 
 
 if __name__ == "__main__":
+    device = torch.device("cpu")
     vocab = Vocab()
     train_data = read_train_data()
-    batches = create_words_batch(train_data, vocab, 30, shuffle=False)
+    batches = create_words_batch(train_data, vocab, 30, shuffle=False, device=device)
 
     all_train_data = [b.src.shape[0] for b in batches]
     print(len(all_train_data))

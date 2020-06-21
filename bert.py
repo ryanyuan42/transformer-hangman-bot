@@ -30,6 +30,10 @@ class Bert(nn.Module):
             x = layer(x, src_mask)
         return self.layer_norm(x)
 
+    @property
+    def device(self):
+        return self.generator.linear.device
+
 
 class Generator(nn.Module):
     def __init__(self, d_model, vocab_size):
