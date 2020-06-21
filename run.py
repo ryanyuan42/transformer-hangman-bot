@@ -1,4 +1,5 @@
 from bert import Bert, Generator, Generator2
+import os
 from position_encoding import PositionalEncoding
 from util import create_words_batch, evaluate_acc, create_words_batch_v2, evaluate_acc_v2
 from reader import Vocab
@@ -110,11 +111,17 @@ def read_dev_data(dummy, small):
 
 def run():
     # alphabets + PAD + MASK_TOKEN
+    directory = 'model_v1/'
+    if not os.path.isdir(directory):
+        os.mkdir(directory)
+    model_save_path = 'real_model.checkpoint'
+    model_save_path = os.path.join(directory, model_save_path)
+
     dummy = False
     small_size = False
     use_checkpoint = True
     use_cuda = False
-    model_save_path = 'real_model.checkpoint'
+
     device = torch.device("cuda:0" if use_cuda else "cpu")
 
     vocab = Vocab()
@@ -225,11 +232,24 @@ def run():
                                 'hist_valid_scores': hist_valid_scores,
                                 }, model_save_path)
 
-    torch.save(model, 'model/real.model')
+        torch.save({'epoch': epoch,
+                    'model_state_dict': model.state_dict(),
+                    'optimizer_state_dict': model_opt.optimizer.state_dict(),
+                    'loss': cum_loss,
+                    '_rate': model_opt._rate,
+                    '_step': model_opt._step,
+                    'train_iter': train_iter,
+                    'hist_valid_scores': hist_valid_scores,
+                    }, os.path.join(directory, f'real_model_{epoch}.checkpoint'))
 
 
 def run_v2():
-    model_path = 'real_model_v2.checkpoint'
+    directory = 'model_v2/'
+    if not os.path.isdir(directory):
+        os.mkdir(directory)
+    model_save_path = 'real_model.checkpoint'
+    model_save_path = os.path.join(directory, model_save_path)
+
     dummy = False
     small_size = False
     use_checkpoint = False
@@ -267,7 +287,7 @@ def run_v2():
     hist_valid_scores = []
 
     if use_checkpoint:
-        checkpoint = torch.load(model_path)
+        checkpoint = torch.load(model_save_path)
         current_epoch = checkpoint['epoch']
         model.load_state_dict(checkpoint['model_state_dict'])
         model = model.to(device)
@@ -330,7 +350,7 @@ def run_v2():
                 hist_valid_scores.append(valid_metric)
 
                 if is_better:
-                    print('save currently the best model to [%s]' % model_path)
+                    print('save currently the best model to [%s]' % model_save_path)
                     torch.save({'epoch': epoch,
                                 'model_state_dict': model.state_dict(),
                                 'optimizer_state_dict': model_opt.optimizer.state_dict(),
@@ -339,9 +359,17 @@ def run_v2():
                                 '_step': model_opt._step,
                                 'train_iter': train_iter,
                                 'hist_valid_scores': hist_valid_scores,
-                                }, model_path)
+                                }, model_save_path)
 
-    # torch.save(model, 'model/real.model')
+        torch.save({'epoch': epoch,
+                    'model_state_dict': model.state_dict(),
+                    'optimizer_state_dict': model_opt.optimizer.state_dict(),
+                    'loss': cum_loss,
+                    '_rate': model_opt._rate,
+                    '_step': model_opt._step,
+                    'train_iter': train_iter,
+                    'hist_valid_scores': hist_valid_scores,
+                    }, os.path.join(directory, f'real_model_{epoch}.checkpoint'))
 
 
 run()
