@@ -19,7 +19,7 @@ from batch import Batch
 pad_token = 0
 mask_token = 1
 log_every_iter = 100
-validate_every_iter = 2000
+validate_every_iter = 10000
 
 
 def create_batch(batch_size, n_batches):
