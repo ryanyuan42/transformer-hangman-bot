@@ -274,14 +274,14 @@ def run_v2():
     model = model.to(device)
 
     opt = torch.optim.Adam(model.parameters(), lr=0, betas=(0.9, 0.98), eps=1e-9)
-    model_opt = NoamOpt(d_model, 1, 200, opt)
+    model_opt = NoamOpt(d_model, 2, 4000, opt)
     criterion = nn.KLDivLoss(reduction='sum')
     vocab = Vocab()
 
     train_data = read_train_data(dummy, small_size)
     dev_data = read_dev_data(dummy, small_size)
 
-    batch_size = 30
+    batch_size = 64
     train_iter = report_loss = cum_loss = valid_num = 0
     report_samples = cum_samples = 0
     hist_valid_scores = []
@@ -372,4 +372,4 @@ def run_v2():
                     }, os.path.join(directory, f'real_model_{epoch}.checkpoint'))
 
 
-run()
+run_v2()

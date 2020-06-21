@@ -148,15 +148,12 @@ def create_words_batch_v2(lines, vocab, mini_batch: int, device, shuffle=True):
                 tgt_buffer = []
 
     if len(src_buffer) != 0:
-        src_numpy = np.array(pad_words(src_buffer, vocab.char2id['_']))
-        tgt_numpy = np.array(pad_words(tgt_buffer, vocab.char2id['_']))
-        tgt_dist = convert_target_to_dist(tgt_numpy, vocab, src_numpy == vocab.char2id['#'])
-        tgt_dist = tgt_dist.astype(float) / tgt_dist.sum(axis=1)[:, np.newaxis]
+        src = torch.tensor(pad_words(src_buffer, vocab.char2id['_']), device=device)
+        tgt = torch.tensor(pad_words(tgt_buffer, vocab.char2id['_']), device=device)
+        tgt_dist = convert_target_to_dist(tgt, vocab, src == vocab.char2id['#'], device=device)
+        tgt_dist = torch.div(tgt_dist, tgt_dist.sum(dim=1)[:, None])
 
-        src = torch.tensor(src_numpy, device=device).long()
-        tgt = torch.tensor(tgt_dist, device=device).float()
-
-        batch = Batch(src, tgt, mask_token=vocab.char2id['#'], pad_token=vocab.char2id['_'])
+        batch = Batch(src, tgt_dist, mask_token=vocab.char2id['#'], pad_token=vocab.char2id['_'])
         yield batch
 
 
