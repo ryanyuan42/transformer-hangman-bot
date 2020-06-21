@@ -22,13 +22,6 @@ validate_every_iter = 2000
 model_save_path = 'real_model.checkpoint'
 
 
-def create_batch(batch_size, n_batches):
-    for _ in range(n_batches):
-        chars = torch.from_numpy(np.random.randint(2, 28, size=(batch_size, 10))).long()
-        batch = Batch(chars, mask_token=mask_token, pad_token=pad_token)
-        yield batch
-
-
 def run_epoch(data_iter, model, loss_compute, train_iter):
     start = time.time()
     total_tokens = 0

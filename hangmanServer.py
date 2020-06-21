@@ -105,7 +105,7 @@ class HangmanPlayer:
         self.guessed_letters = []
 
     def load_model(self, path):
-        device = 'cpu'
+        device = torch.device('cpu')
         V = len(self.vocab.char2id)
         d_model = 64
         d_ff = 256

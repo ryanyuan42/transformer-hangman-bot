@@ -32,7 +32,7 @@ class Bert(nn.Module):
 
     @property
     def device(self):
-        return self.generator.linear.device
+        return self.generator.linear.weight.device
 
 
 class Generator(nn.Module):
