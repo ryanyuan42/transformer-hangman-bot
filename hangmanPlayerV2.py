@@ -14,7 +14,7 @@ import numpy as np
 import torch.nn as nn
 
 
-class HangmanPlayer:
+class HangmanPlayerV2:
     def __init__(self):
         self.guessed_letters = []
         self.vocab = Vocab()

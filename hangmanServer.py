@@ -1,6 +1,6 @@
 import numpy as np
-# from hangmanPlayer import HangmanPlayer
-from hangmanPlayerV2 import HangmanPlayer
+from hangmanPlayer import HangmanPlayer
+from hangmanPlayerV2 import HangmanPlayerV2
 
 
 class HangmanServer:
@@ -37,9 +37,9 @@ class HangmanServer:
             print("=" * 20, "Game %d" % (total + 1), '=' * 20, "Success Rate: %.2f" % success_rate)
             # if (total + 1) % 100 == 0:
             #     print(total + 1)
+            print('provided question: ', " ".join(question))
             while '#' in question and tries > 0:
                 guess = self.player.guess(question)
-                print("provided question: ", " ".join(question), "your guess: %s" % guess, "left tries: %d" % tries, 'answer: %s' % answer)
                 question_lst = []
                 for q_l, a_l in zip(question, answer):
                     if q_l == '#':
@@ -52,6 +52,7 @@ class HangmanServer:
                 question = "".join(question_lst)
                 if guess not in answer:
                     tries -= 1
+                print("provided question: ", " ".join(question), "your guess: %s" % guess, "left tries: %d" % tries, 'answer: %s' % answer)
 
             if '#' not in question:
                 success += 1
