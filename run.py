@@ -236,6 +236,8 @@ def run_v2():
     opt = torch.optim.Adam(model.parameters(), lr=0, betas=(0.9, 0.98), eps=1e-9)
     model_opt = NoamOpt(d_model, 2, 4000, opt)
     criterion = nn.KLDivLoss(reduction='sum')
+    if use_cuda:
+        criterion.cuda(device=device)
     vocab = Vocab()
 
     train_data = read_train_data(dummy, small_size)
