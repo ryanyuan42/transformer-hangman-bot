@@ -43,14 +43,19 @@ class HangmanServer:
 
     def run(self):
         test_words = self.read_test_words()
+        np.random.shuffle(test_words)
+        test_words = test_words[:1000]
         qa_pair = self.data_iter(test_words)
         success = total = 0
-
+        success_rate = 0
+        print(f"Total Game Number: {len(test_words)}")
         for question, answer in qa_pair:
             self.player.new_game()
             tries = 6
             success_rate = 0 if total == 0 else success / total
             print("=" * 20, "Game %d" % (total + 1), '=' * 20, "Success Rate: %.2f" % success_rate)
+            # if (total + 1) % 100 == 0:
+            #     print(total + 1)
             while '#' in question and tries > 0:
                 guess = self.player.guess(question)
                 print("provided question: ", " ".join(question), "your guess: %s" % guess, "left tries: %d" % tries, 'answer: %s' % answer)
@@ -70,6 +75,8 @@ class HangmanServer:
             if '#' not in question:
                 success += 1
             total += 1
+
+        print(f"{success} success out of {total} tries, rate: {success / total:.4f}")
 
 
 class HangmanPlayer:

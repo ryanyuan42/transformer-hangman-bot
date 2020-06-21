@@ -44,5 +44,15 @@ class Generator(nn.Module):
 
     def forward(self, x):
         return self.linear(x)
+    
 
+class Generator2(nn.Module):
+    def __init__(self, d_model, vocab_size):
+        super(Generator2, self).__init__()
+        self.linear = nn.Linear(in_features=d_model,
+                                out_features=vocab_size)
+
+    def forward(self, x):
+        result, _ = torch.max(self.linear(x), dim=1)
+        return F.log_softmax(result, dim=1)
 

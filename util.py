@@ -1,4 +1,5 @@
 import torch.nn as nn
+from numba import jit
 from reader import Vocab
 import torch
 from batch import Batch
@@ -52,6 +53,48 @@ def evaluate_acc(model, vocab, dev_data, device):
     return acc
 
 
+def evaluate_acc_v2(model, vocab, dev_data, device):
+    was_training = model.training
+    model.eval()
+
+    # no_grad() signals backend to throw away all gradients
+    total_correct_guess = 0
+    total_n = 0
+    with torch.no_grad():
+        for batch in create_words_batch_v2(dev_data, vocab, mini_batch=30, shuffle=False, device=device):
+
+            output = model(batch.src, batch.src_mask)
+            p = model.generator(output)
+            most_prob_letter = torch.argmax(p, dim=1)
+            most_prob_mask = torch.zeros(batch.tgt.shape, device=device)
+            most_prob_mask = most_prob_mask.scatter_(1, most_prob_letter.view(-1, 1), 1)
+            batch_guess = (batch.tgt * most_prob_mask).sum(dim=1)
+
+            total_correct_guess += (batch_guess != 0).sum().item()
+            total_n += batch_guess.shape[0]
+
+        acc = total_correct_guess / total_n
+
+    if was_training:
+        model.train()
+
+    return acc
+
+
+def convert_target_to_dist(target, vocab, mask, device):
+    dist_mask = torch.zeros(target.shape[0], len(vocab.char2id), device=device)
+    dist_mask = dist_mask.scatter_(1, target * mask, 1)
+
+    target_numpy = (target * mask).numpy()
+    extra_col = np.ones((target.shape[0], 1), dtype=target_numpy.dtype) * (vocab.char2id['z'] + 1)
+    target_numpy = np.hstack((target_numpy, extra_col))
+    target_np_dist = np.apply_along_axis(np.bincount, 1, target_numpy)[:, :-1]
+    target_dist = torch.from_numpy(target_np_dist)
+    target_dist[:, 0] = 0
+
+    return target_dist * dist_mask
+
+
 def create_words_batch(lines, vocab, mini_batch: int, device, shuffle=True):
     if shuffle:
         np.random.shuffle(lines)
@@ -80,6 +123,41 @@ def create_words_batch(lines, vocab, mini_batch: int, device, shuffle=True):
         batch = Batch(src, tgt, mask_token=vocab.char2id['#'], pad_token=vocab.char2id['_'])
         yield batch
 
+
+def create_words_batch_v2(lines, vocab, mini_batch: int, device, shuffle=True):
+    if shuffle:
+        np.random.shuffle(lines)
+
+    src_buffer = []
+    tgt_buffer = []
+    for line in lines:
+        src_word, tgt_word = line.split(',')
+        if len(line) > 1:
+            src_buffer.append([vocab.char2id[c] for c in src_word])
+            tgt_buffer.append([vocab.char2id[c] for c in tgt_word])
+
+            if len(src_buffer) == mini_batch:
+                src = torch.tensor(pad_words(src_buffer, vocab.char2id['_']), device=device)
+                tgt = torch.tensor(pad_words(tgt_buffer, vocab.char2id['_']), device=device)
+                tgt_dist = convert_target_to_dist(tgt, vocab, src == vocab.char2id['#'], device=device)
+                tgt_dist = torch.div(tgt_dist, tgt_dist.sum(dim=1)[:, None])
+
+                batch = Batch(src, tgt_dist, mask_token=vocab.char2id['#'], pad_token=vocab.char2id['_'])
+                yield batch
+                src_buffer = []
+                tgt_buffer = []
+
+    if len(src_buffer) != 0:
+        src_numpy = np.array(pad_words(src_buffer, vocab.char2id['_']))
+        tgt_numpy = np.array(pad_words(tgt_buffer, vocab.char2id['_']))
+        tgt_dist = convert_target_to_dist(tgt_numpy, vocab, src_numpy == vocab.char2id['#'])
+        tgt_dist = tgt_dist.astype(float) / tgt_dist.sum(axis=1)[:, np.newaxis]
+
+        src = torch.tensor(src_numpy, device=device).long()
+        tgt = torch.tensor(tgt_dist, device=device).float()
+
+        batch = Batch(src, tgt, mask_token=vocab.char2id['#'], pad_token=vocab.char2id['_'])
+        yield batch
 
 
 def read_train_data():
