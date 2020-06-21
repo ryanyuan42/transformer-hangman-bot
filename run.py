@@ -22,13 +22,6 @@ log_every_iter = 100
 validate_every_iter = 10000
 
 
-def create_batch(batch_size, n_batches):
-    for _ in range(n_batches):
-        chars = torch.from_numpy(np.random.randint(2, 28, size=(batch_size, 10))).long()
-        batch = Batch(chars, mask_token=mask_token, pad_token=pad_token)
-        yield batch
-
-
 def run_epoch(data_iter, model, loss_compute, train_iter):
     start = time.time()
     total_tokens = 0
@@ -50,37 +43,6 @@ def run_epoch(data_iter, model, loss_compute, train_iter):
             start = time.time()
             tokens = 0
     return total_loss / total_tokens
-
-
-def run_simple():
-    # alphabets + PAD + MASK_TOKEN
-    V = 26 + 1 + 1
-    d_model = 256
-    h = 8
-
-    self_attn = MultiHeadedAttention(h=h, d_model=d_model, d_k=d_model//h, d_v=d_model//h, dropout=0.3)
-    feed_forward = FullyConnectedFeedForward(d_model=d_model, d_ff=1024)
-    embedding = Embeddings(d_model=d_model, vocab=V)
-
-    encoder = Encoder(self_attn=self_attn, feed_forward=feed_forward, size=d_model, dropout=0.1)
-    generator = Generator(d_model=d_model, vocab_size=V)
-    model = Bert(encoder=encoder, embedding=embedding, generator=generator, n_layers=4)
-    model_opt = NoamOpt(d_model, 1, 400, torch.optim.Adam(model.parameters(), lr=0, betas=(0.9, 0.98), eps=1e-9))
-    criterion = nn.CrossEntropyLoss(reduction='none')
-
-    for epoch in range(15):
-        print("=" * 30)
-        model.train()
-        loss_compute = SimpleLossCompute(model.generator, criterion, opt=model_opt)
-        train_loss = run_epoch(create_batch(30, 20), model, loss_compute)
-
-        model.eval()
-        loss_compute_eval = SimpleLossCompute(model.generator, criterion, opt=None)
-        val_loss = run_epoch(create_batch(30, 5), model, loss_compute_eval)
-        print("=" * 30)
-        print("Epoch: %d Training Overall Loss: %f Validation Overall Loss: %f" % (epoch, float(train_loss), float(val_loss)))
-
-    torch.save(model, "toy.model")
 
 
 def read_train_data(dummy, small):
