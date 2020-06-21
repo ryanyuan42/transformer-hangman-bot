@@ -26,7 +26,7 @@ def pad_words(words, pad_token):
     return words_padded
 
 
-def evaluate_acc(model, vocab, dev_data):
+def evaluate_acc(model, vocab, dev_data, device):
     was_training = model.training
     model.eval()
 
@@ -34,7 +34,7 @@ def evaluate_acc(model, vocab, dev_data):
     total_correct_guess = 0
     total_n = 0
     with torch.no_grad():
-        for batch in create_words_batch(dev_data, vocab, mini_batch=30, shuffle=False):
+        for batch in create_words_batch(dev_data, vocab, mini_batch=30, shuffle=False, device=device):
 
             output = model(batch.src, batch.src_mask)
             p = model.generator(output)
