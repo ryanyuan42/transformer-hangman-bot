@@ -81,15 +81,49 @@ def evaluate_acc_v2(model, vocab, dev_data, device):
     return acc
 
 
+def evaluate_acc_v3(model, vocab, dev_data, device):
+    was_training = model.training
+    model.eval()
+
+    # no_grad() signals backend to throw away all gradients
+    total_correct_guess = 0
+    total_n = 0
+    with torch.no_grad():
+        for batch in create_words_batch_v2(dev_data, vocab, mini_batch=30, shuffle=False, device=device):
+
+            output = model(batch.src, batch.src_mask)
+            generator_mask = torch.zeros(batch.src.shape[0], len(vocab.char2id), device=model.device)
+            generator_mask = generator_mask.scatter_(1, batch.src, 1)
+
+            p = model.generator(output, generator_mask)
+            most_prob_letter = torch.argmax(p, dim=1)
+            most_prob_mask = torch.zeros(batch.tgt.shape, device=device)
+            most_prob_mask = most_prob_mask.scatter_(1, most_prob_letter.view(-1, 1), 1)
+            batch_guess = (batch.tgt * most_prob_mask).sum(dim=1)
+
+            total_correct_guess += (batch_guess != 0).sum().item()
+            total_n += batch_guess.shape[0]
+
+        acc = total_correct_guess / total_n
+
+    if was_training:
+        model.train()
+
+    return acc
+
+
 def convert_target_to_dist(target, vocab, mask, device):
     dist_mask = torch.zeros(target.shape[0], len(vocab.char2id), device=device)
     dist_mask = dist_mask.scatter_(1, target * mask, 1)
 
-    target_numpy = (target * mask).numpy()
+    target_numpy = (target * mask).cpu().numpy()
     extra_col = np.ones((target.shape[0], 1), dtype=target_numpy.dtype) * (vocab.char2id['z'] + 1)
     target_numpy = np.hstack((target_numpy, extra_col))
     target_np_dist = np.apply_along_axis(np.bincount, 1, target_numpy)[:, :-1]
-    target_dist = torch.from_numpy(target_np_dist)
+    if device.type == 'cuda':
+        target_dist = torch.from_numpy(target_np_dist).cuda()
+    else:
+        target_dist = torch.from_numpy(target_np_dist)
     target_dist[:, 0] = 0
 
     return target_dist * dist_mask

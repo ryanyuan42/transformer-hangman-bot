@@ -63,7 +63,7 @@ class HangmanPlayer:
         model = Bert(encoder=encoder, embedding=embedding, generator=generator, n_layers=n_encoders)
         model = model.to(device)
         model_save_path = path
-        checkpoint = torch.load(model_save_path)
+        checkpoint = torch.load(model_save_path, map_location=device)
         model.load_state_dict(checkpoint['model_state_dict'])
 
         return model

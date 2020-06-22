@@ -1,4 +1,5 @@
 import torch.nn as nn
+import numpy as np
 import torch.nn.functional as F
 import torch
 from layer_norm import LayerNorm
@@ -56,3 +57,14 @@ class Generator2(nn.Module):
         result, _ = torch.max(self.linear(x), dim=1)
         return F.log_softmax(result, dim=1)
 
+
+class Generator3(nn.Module):
+    def __init__(self, d_model, vocab_size):
+        super(Generator3, self).__init__()
+        self.linear = nn.Linear(in_features=d_model,
+                                out_features=vocab_size)
+
+    def forward(self, x, exist_mask):
+        result, _ = torch.max(self.linear(x), dim=1)
+        result = result.masked_fill_(exist_mask == 1, -1e9)
+        return F.log_softmax(result, dim=1)

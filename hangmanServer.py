@@ -62,7 +62,7 @@ class HangmanServer:
 
 
 if __name__ == "__main__":
-    player = HangmanPlayer()
+    player = HangmanPlayerV2()
     server = HangmanServer(player)
 
     server.run()
