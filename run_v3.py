@@ -23,7 +23,7 @@ def read_train_data(dummy, small):
         with open("words_alpha_dummy_train.txt") as f:
             words = f.read().split('\n')
     else:
-        with open("words_alpha_train_unique.txt") as f:
+        with open("words_alpha_train_unique_big.txt") as f:
             words = f.read().split('\n')
     if small:
         return words[:10]
@@ -59,8 +59,8 @@ def run_v3():
 
     vocab = Vocab()
     V = len(vocab.char2id)
-    d_model = 64
-    d_ff = 256
+    d_model = 256
+    d_ff = 1024
     h = 4
     n_encoders = 4
 
@@ -106,7 +106,7 @@ def run_v3():
         current_epoch = 0
         current_train_iter = 0
 
-    for epoch in range(current_epoch, 500):
+    for epoch in range(current_epoch, 100):
         print("=" * 30)
         model.train()
         loss_compute = KLLossComputeMasked(model.generator, criterion, opt=model_opt)
