@@ -2,7 +2,7 @@ import pandas as pd
 from typing import List
 from collections import defaultdict
 import string
-with open("words_alpha_train.txt") as f:
+with open("words_alpha_train_unique.txt") as f:
     words = f.read().split('\n')
 words = [word.split(',')[1] for word in words[:-1]]
 

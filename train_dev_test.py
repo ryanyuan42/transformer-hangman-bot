@@ -30,14 +30,14 @@ dev_words = remove_one_length_word(dev_words)
 test_words = remove_one_length_word(test_words)
 
 
-# with open('words_alpha_train.txt', 'w') as f:
-#     f.write("\n".join(train_words))
-#
-# with open('words_alpha_dev.txt', 'w') as f:
-#     f.write('\n'.join(dev_words))
-#
-# with open('words_alpha_test.txt', 'w') as f:
-#     f.write('\n'.join(test_words))
+with open('words_alpha_train.txt', 'w') as f:
+    f.write("\n".join(train_words))
+
+with open('words_alpha_dev.txt', 'w') as f:
+    f.write('\n'.join(dev_words))
+
+with open('words_alpha_test.txt', 'w') as f:
+    f.write('\n'.join(test_words))
 
 
 @jit(nopython=True, nogil=True)
@@ -64,7 +64,7 @@ def create_mask_words_unique(words):
         word_ = list(words[i])
         word_lst = np.unique(word_)
         word_len = len(word_lst)
-        n_mask = max(int(word_len * 0.4), 1)
+        n_mask = max(int(word_len * 0.5), 1)
         indices = np.random.choice(np.arange(word_len), size=n_mask)
         letters = word_lst[indices]
         for l in letters:
@@ -83,17 +83,24 @@ def create_typed_list(words):
     return typed_list
 
 
-train_mask_words = create_mask_words_unique(create_typed_list(train_words))
-dev_mask_words = create_mask_words_unique(create_typed_list(dev_words))
-test_mask_words = create_mask_words_unique(create_typed_list(test_words))
+def write_train_dev_test():
+    train_mask_words = create_mask_words_unique(create_typed_list(train_words))
+    dev_mask_words = create_mask_words_unique(create_typed_list(dev_words))
+    test_mask_words = create_mask_words_unique(create_typed_list(test_words))
 
-with open('words_alpha_train_unique.txt', 'a') as f:
-    for masked_word, word in zip(train_mask_words, train_words):
-        f.write(','.join([masked_word, word])+'\n')
-with open('words_alpha_dev_unique.txt', 'a') as f:
-    for masked_word, word in zip(dev_mask_words, dev_words):
-        f.write(','.join([masked_word, word])+'\n')
-with open('words_alpha_test_unique.txt', 'a') as f:
-    for masked_word, word in zip(test_mask_words, test_words):
-        f.write(','.join([masked_word, word])+'\n')
+    with open('words_alpha_train_unique_big.txt', 'a') as f:
+        for masked_word, word in zip(train_mask_words, train_words):
+            f.write(','.join([masked_word, word])+'\n')
+    with open('words_alpha_dev_unique_big.txt', 'a') as f:
+        for masked_word, word in zip(dev_mask_words, dev_words):
+            f.write(','.join([masked_word, word])+'\n')
+    with open('words_alpha_test_unique_big.txt', 'a') as f:
+        for masked_word, word in zip(test_mask_words, test_words):
+            f.write(','.join([masked_word, word])+'\n')
 
+
+write_train_dev_test()
+write_train_dev_test()
+write_train_dev_test()
+write_train_dev_test()
+write_train_dev_test()

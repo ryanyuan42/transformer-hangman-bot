@@ -1,6 +1,7 @@
 import numpy as np
 from hangmanPlayer import HangmanPlayer
 from hangmanPlayerV2 import HangmanPlayerV2
+from hangmanPlayerV3 import HangmanPlayerV3
 
 
 class HangmanServer:
@@ -10,7 +11,7 @@ class HangmanServer:
 
     @staticmethod
     def read_test_words():
-        with open("words_alpha_test.txt") as f:
+        with open("words_alpha_test_unique.txt") as f:
             words = f.read().split('\n')
 
         return words[:-1]
@@ -62,7 +63,7 @@ class HangmanServer:
 
 
 if __name__ == "__main__":
-    player = HangmanPlayerV2()
+    player = HangmanPlayerV3()
     server = HangmanServer(player)
 
     server.run()
