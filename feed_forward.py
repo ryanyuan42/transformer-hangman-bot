@@ -29,4 +29,4 @@ class FullyConnectedFeedForward(nn.Module):
         :param x: shape (batch_size, max_sent_len, embedding_size/d_model)
         :return: output: shape (batch_size, max_sent_len, embedding_size/d_model)
         """
-        return self.w_2(self.dropout(F.relu(self.w_1(x))))
+        return self.w_2(self.dropout(F.gelu(self.w_1(x))))

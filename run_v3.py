@@ -75,7 +75,7 @@ def run_v3():
     model = model.to(device)
 
     opt = torch.optim.Adam(model.parameters(), lr=0, betas=(0.9, 0.98), eps=1e-9)
-    model_opt = NoamOpt(d_model, 5, 4000, opt)
+    model_opt = NoamOpt(d_model, 2, 4000, opt)
     criterion = nn.KLDivLoss(reduction='sum')
     if use_cuda:
         criterion.cuda(device=device)

@@ -48,7 +48,7 @@ def read_train_data(dummy, small):
         with open("words_alpha_dummy_train.txt") as f:
             words = f.read().split('\n')
     else:
-        with open("words_alpha_train.txt") as f:
+        with open("words_alpha_train_unique.txt") as f:
             words = f.read().split('\n')
     if small:
         return words[:10]
@@ -61,7 +61,7 @@ def read_dev_data(dummy, small):
         with open("words_alpha_dummy_dev.txt") as f:
             words = f.read().split('\n')
     else:
-        with open("words_alpha_dev.txt") as f:
+        with open("words_alpha_dev_unique.txt") as f:
             words = f.read().split('\n')
     if small:
         return words[:10]
