@@ -4,7 +4,7 @@
 
 Hangman is a paper and pencil guessing game for two or more players. 
 One player thinks of a word, phrase or sentence and the other(s) tries to guess it by suggesting letters within a certain number of guesses. If none of the people that are guessing the word get it right the person who give the word DOES NOT get the point.
-To know more about how to play hangman, check here [Hangman(game)](https://en.wikipedia.org/wiki/Hangman_(game)
+To know more about how to play hangman, check here [Hangman(game)](https://en.wikipedia.org/wiki/Hangman_(game))
 
 # What is BERT?
 
