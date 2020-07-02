@@ -47,10 +47,9 @@ class HangmanPlayerV3:
         self.guessed_letters = []
 
     def load_model(self, path):
-
         V = len(self.vocab.char2id)
-        d_model = 64
-        d_ff = 256
+        d_model = 128
+        d_ff = 512
         h = 4
         n_encoders = 4
 
