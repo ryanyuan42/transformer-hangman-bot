@@ -62,7 +62,7 @@ a, b, c, d, e, f, g, h, ...
 # Version 3
 
 The above model didn't take advantage of the fact that during 
-the game, guessed letters won't be the masked letters. So in the
+the game, unmasked letters won't be the masked letters. So in the
 final layer, before calculating the probability of each letter,
 I assign -inf to the scores of the guessed letters.
 
