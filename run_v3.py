@@ -74,7 +74,7 @@ def run_v3():
     model = Bert(encoder=encoder, embedding=embedding, generator=generator, n_layers=n_encoders)
     for p in model.parameters():
         if p.dim() > 1:
-            nn.init.xavier_uniform(p)
+            nn.init.xavier_uniform_(p)
 
     model = model.to(device)
 
