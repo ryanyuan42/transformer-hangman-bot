@@ -72,6 +72,10 @@ def run_v3():
     encoder = Encoder(self_attn=self_attn, feed_forward=feed_forward, size=d_model, dropout=0.1)
     generator = Generator3(d_model=d_model, vocab_size=V)
     model = Bert(encoder=encoder, embedding=embedding, generator=generator, n_layers=n_encoders)
+    for p in model.parameters():
+        if p.dim() > 1:
+            nn.init.xavier_uniform(p)
+
     model = model.to(device)
 
     opt = torch.optim.Adam(model.parameters(), lr=0, betas=(0.9, 0.98), eps=1e-9)
