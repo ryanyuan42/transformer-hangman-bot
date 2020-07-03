@@ -48,8 +48,8 @@ class HangmanPlayerV3:
 
     def load_model(self, path):
         V = len(self.vocab.char2id)
-        d_model = 128
-        d_ff = 512
+        d_model = 256
+        d_ff = 1024
         h = 4
         n_encoders = 4
 
