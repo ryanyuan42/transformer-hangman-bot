@@ -73,7 +73,12 @@ Example:
 masked word: ha##ma#  
 original word: hangman
 
+
+Multi-headed Attention visualization:
+
 ![Attention](attention.png)
+
+Probability of letters given by model:
 
 ![letterProb](prob.png)
 
