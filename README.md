@@ -74,11 +74,11 @@ achieves a success rate 60%.
 
 # Play Hangman
 
-Train your model,   
+To train your model, run:
 
 ```python run_v3.py```
 
-and run 
+To play the game, run:
 
 ```python hangmanServer.py```
 
