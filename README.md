@@ -69,8 +69,8 @@ I assign -inf to the scores of the guessed letters.
 
 # Performance
 
-Small model achieves a success rate 42%, big model(still training)
-achieves a success rate 54%.
+Small model achieves a success rate 42%, big model
+achieves a success rate 60%.
 
 # Play Hangman
 
