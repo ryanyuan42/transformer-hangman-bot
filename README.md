@@ -66,6 +66,21 @@ the game, unmasked letters won't be the masked letters. So in the
 final layer, before calculating the probability of each letter,
 I assign -inf to the scores of the guessed letters.
 
+# Model Attention
+
+Example: 
+
+masked word: ha##ma#  
+original word: hangman
+
+![Attention](attention.png)
+
+![letterProb](prob.png)
+
+The model is mostly paying attention to letter 'm' and 
+'a' and letter 'n' has the highest probability among letters
+to show up in the word.
+
 
 # Performance
 
